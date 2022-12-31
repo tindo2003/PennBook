@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>	
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+       
+		<style>
+            body {
+			--color-background: #2B3948;
+			--color-card-primary: #202D3A;
+			--color-background-light: #364656;
+			--color-dark-gray: #364656;
+			--color-dark-text: #616F8C;
+			--color-button-hover: #283343;
+			--color-white: #CAD3DE;
+			--color-gray: #667483;
+			--color-accent-green-dark: #3E8C8C;
+			--color-accent-green-light: #50BFAB;
+			--border-radius: 4px;
+			
+			background: var(--color-background);
+		}
+		
+		*{
+			margin: 0;
+			padding: 0;
+			font-family: "Lucida Console", "Courier New", monospace;
+			box-sizing: border-box;
+		}
+		
+		a{
+			text-decoration: none;
+			color: #000000;
+		}
+		
+		img{
+			cursor: pointer;
+		}
+		
+		.flex-div{
+			display: flex;
+		}
+		
+		nav{
+			padding: 8px 2%;
+			justify-content: space-between;
+			box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+			background: var(--color-button-hover);
+			top: 0;
+			z-index: 10;
+			margin-bottom: 14px;
+		}
+		.nav-right img{
+			width: 25px;
+			margin-right: 15px;
+		}
+		.nav-right .nav-circular-icon{
+			width: 35px;
+			border-radius: 50%;
+			margin-right: 0px;
+		}
+		
+		.search-bar{			
+			border: 1px solid #5A5A5A;
+			margin-left: 15px;
+			padding: 6px 12px;
+			border-radius: var(--border-radius);
+			transition: background 0.2s, border-color 0.2s;
+			outline: none;
+			background: #eeeeee;
+		}
+		
+		.search-bar:focus{
+			border: 1px solid var(--color-white);
+			background: #ffffff;
+		}
+		
+		.search-bar input{
+			width: 400px;
+			border: 0;
+			outline: 0;
+			background: transparent;
+		}
+		
+		.left{
+			width:300px;
+			max-width:300px;
+		}
+		
+		.left-container{
+			display: flex;
+			flex-wrap: wrap;
+			width: 300px;
+			max-width: 300px;
+			margin-left: 1rem;
+			padding: 2rem;
+			box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+			border-radius: var(--border-radius);
+			background: var(--color-button-hover);
+			align-items: center;
+			float:right;
+			text-align: center;
+			margin-bottom: 0.5rem;
+		}
+		
+		.top-panel{
+			height: 100%;
+			width: 100%;
+			color: var(--color-accent-green-light);
+		}
+		
+		.bot-panel{
+			height: 100%;
+			width: 100%;
+			text-align: center;
+			color: var(--color-gray);
+		}
+		
+		.left-container .second{
+			
+		}
+		
+		.form_button{
+			width: 50%;
+			padding: 0.5rem 0.25rem;
+			font-size: 1rem;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			outline: none;
+			cursor: pointer;
+			background: var(--color-background);
+		}
+		
+		
+		.form_button:hover {
+			background: var(--color-button-hover);
+			cursor: pointer;
+		}
+		
+		.form_button:active {
+			transform: scale(0.98);
+		}
+		
+		.posts-container{
+			align-items: center;
+			margin-left: 330px;
+		}
+		
+		.create-post{
+			width: 575px;
+			max-width: 575px;
+			margin: 1rem;
+			padding-top: 2rem;
+			padding-right: 2rem;
+			padding-bottom: 1rem;
+			border-radius: var(--border-radius);
+			background: #ffffff;
+			background: var(--color-button-hover);
+			box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+		}
+		
+		
+		.create-post .form_button{
+			padding: 0.5rem 0.25rem;
+			font-size: 1rem;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			outline: none;
+			cursor: pointer;
+			width: 13%;
+			background: var(--color-secondary);
+		}
+		
+		.create-post .search-bar{
+			margin-bottom: 1rem;
+			width: 97.5%;
+			padding: 0.75rem;
+			box-sizing: border-box;
+			border-radius: 6px;
+		}
+		
+		.post{
+			color: white;
+			width: 575px;
+			max-width: 575px;
+			margin: 1rem;
+			padding: 2rem;
+			box-shadow: 5px 5px 40px rgba(0, 0, 0, 0.2);
+			border-radius: var(--border-radius);
+			background: var(--color-card-primary);
+			box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+		}
+		
+		.link:hover{
+			background: var(--color-white);
+		}
+		.text_link:hover{
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		
+		.commentButton{
+			padding: 0.5rem 0.25rem;
+			font-size: 1rem;
+			color: #ffffff;
+			border: none;
+			border-radius: 5px;
+			outline: none;
+			cursor: pointer;
+			width: 13%;
+			background: var(--color-background);
+		}
+		
+		.add-comment-textbox{
+			border: 1px solid #5A5A5A;
+			padding: 1px 8px;
+			border-radius: var(--border-radius);
+			transition: background 0.2s, border-color 0.2s;
+			outline: none;
+			background: var(--color-gray);
+		}
+		
+		.add-comment-textbox:focus{
+			background: var(--color-white);
+			border: 1px solid var(--color-white);
+
+		}
+		
+		.likeButton{
+			padding: 0.5rem 0.25rem;
+			font-size: 1rem;
+			color: #ffffff;
+			border: none;
+			border-radius: 5px;
+			outline: none;
+			cursor: pointer;
+			width: 13%;
+			background: var(--color-background);
+		}
+		
+		.logo{
+			color: white;
+		}
+		
+		.comment-container{
+			color: white;
+			align-items: right;
+			margin-left: 20px;
+			font-size: 0.75rem;
+		}
+		
+		.indiv-comment-container{
+			width: 400px;
+			max-width: 400px;
+			margin: 1rem;
+			padding: 2rem;
+			box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+			border-radius: var(--border-radius);
+			background: var(--color-button-hover);
+			box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+		}
+
+	    </style>
+
+	</head>
+    <script>
+	var user;
+    var articleData =  <%-JSON.stringify(results)%>
+    
+    $(document).ready(
+		// get that user data
+		$.getJSON('/getUserInfo', function(data) {
+			console.log("USER INFO", data);
+			user = data.Item.username.S;
+			console.log('username', user);
+		})
+    )
+
+	var socket = io();
+	console.log("Adding user to online");
+	$.getJSON('/getUserInfo', function(data) {
+		socket.emit('login', {
+			user: data.Item.username.S
+		});
+	});
+
+	var searchterms =  <%-JSON.stringify(searchterms)%>
+
+
+
+    function createPostDiv(articleData) { 
+        
+        var outerDiv = document.createElement("div");
+		var post = document.createElement("div");
+		post.style['background'] = '#36454F';
+		
+		
+		var form = document.createElement("form");
+		
+		const likeButton = document.createElement("BUTTON");
+		likeButton.innerText="like";
+		likeButton.className = "form_button likeButton";
+		likeButton.onclick = function(){
+            alert("successfully liked the article");
+            //console.log(articleData.headline)
+			$.post("/likeArticle", { headline: articleData.headline
+                
+
+			}, function(data) {
+				const content = JSON.parse(data)
+				
+				$("#myModal .body").text("article liked");
+				$('#myModal').modal('show'); 
+			});
+		};
+
+		const dislikeButton = document.createElement("BUTTON");
+		dislikeButton.innerText="unlike";
+		dislikeButton.className = "form_button dislikeButton";
+		dislikeButton.onclick = function(){
+            alert("successfully disliked the article");
+            //console.log(articleData.headline)
+			$.post("/deleteLikedArticle", { headline: articleData.headline
+                
+
+			}, function(data) {
+				const content = JSON.parse(data)
+				
+				$("#myModal .body").text("article liked");
+				$('#myModal').modal('show'); 
+			});
+		};
+		
+		var postHeader = document.createElement("div");
+		postHeader.innerHTML = articleData.headline;
+		
+		postHeader.style['font-weight'] = 'bold';
+		
+		var content = document.createElement("div");
+        var content3 = document.createElement("p");
+        content3.innerHTML = articleData.category
+		content.appendChild(content3);  
+        var content4 = document.createElement("p");
+        content4.innerHTML = articleData.short_description
+		content.appendChild(content4);  
+		var content5 = document.createElement("p");
+        content5.innerHTML = articleData.freq
+		//content.appendChild(content5);  
+		
+		post.className = "post";
+		post.append(postHeader, content, likeButton, dislikeButton);
+		outerDiv.append(post);
+
+        document.getElementById("firstblock").appendChild(outerDiv)
+    }   
+
+
+
+	for(var i=0; i < articleData.length; i++) {
+			console.log("yowza!")
+			console.log(searchterms)
+			var currarticle = articleData[i];
+			var title = currarticle.headline.split(" ")
+			var descript = currarticle.short_description.split(" ")
+
+			var sum = 0;
+
+			for (let x = 0; x < searchterms.length; x++) {
+				var currkeyword = searchterms[x];
+				for (let y = 0; y < title.length; y++) {
+					var currstr = title[y].replace(/\W/g, "").toLowerCase();
+					
+					console.log(currstr);
+					if(currstr === currkeyword){
+						sum = sum +1;
+					} 
+				}
+				for (let z = 0; z < descript.length; z++) {
+					var str = descript[z].replace(/\W/g, "").toLowerCase();
+					console.log(str)
+					if(str === currkeyword){
+						sum = sum +1;
+					} 
+				}
+			}
+
+			articleData[i].freq = sum;
+	}
+
+	articleData.sort(function(a, b){return b.freq - a.freq})
+
+
+	// change your news interests
+	function createEditDiv(articleData) { 
+
+		var outerDiv = document.createElement("div");
+		var post = document.createElement("div");
+
+		var form = document.createElement("form");
+
+		const likeButton = document.createElement("BUTTON");
+		likeButton.innerText="submit";
+		likeButton.className = "form_button likeButton";
+		likeButton.onclick = function(){
+			alert("successfully liked this category");
+			var currcategory = $("#categories").val();
+			console.log(currcategory);
+			$.post("/createInterest", { category:currcategory }, function(data) {
+				//const content = JSON.parse(data)
+				var content = user + " has updated their news interests to include: " + currcategory;
+				$.post('addPost', {username: user, creatorname: user, content: content}, function(data) {
+					if (data.success) {
+						console.log("Successfully added post");
+					}
+				});
+				
+				$("#myModal .body").text("article liked");
+				$('#myModal').modal('show');
+				var element = document.getElementById("currinterestdiv");
+			element.parentNode.removeChild(element);
+
+			refresh(); 
+			});
+		};
+
+		var postHeader = document.createElement("div");
+		postHeader.innerHTML = "submit your news interest!";
+
+		var content = document.createElement("div");
+
+		post.className = "post";
+		post.append(postHeader, content, likeButton);
+		outerDiv.append(post);
+		
+
+		document.getElementById("firstblock").appendChild(outerDiv)
+	
+	}   
+
+
+	function createInterestDiv(interestData) { 
+
+		console.log("wow")
+
+		var outerDiv = document.createElement("div");
+		outerDiv.setAttribute("id", "currinterestdiv");
+		var post = document.createElement("div");
+		var form = document.createElement("form");
+		var postHeader = document.createElement("div");
+
+		var headerDiv = document.createElement("div");
+		$(headerDiv).html('<b>News Interests:</b>')
+		
+		post.prepend(headerDiv);
+
+		const likeButton = document.createElement("BUTTON");
+		likeButton.innerText="reset";
+		likeButton.className = "form_button likeButton";
+		likeButton.onclick = function(){
+            alert("successfully reset interests");
+            //console.log(articleData.headline)
+			$.post("/deleteInterests", function(data) {
+				console.log(data)
+				$("#myModal .body").text("article liked");
+				$('#myModal').modal('show'); 
+
+				var element = document.getElementById("currinterestdiv");
+				element.parentNode.removeChild(element);
+				
+				var content = user + " has removed all of their news interests";
+				$.post('addPost', {username: user, creatorname: user, content: content}, function(data) {
+					if (data.success) {
+						console.log("Successfully added post");
+						refresh();
+					}
+				});
+			});
+		};
+
+		
+
+		var content = document.createElement("div");
+
+		for(let i = 0; i < interestData.length; i++){
+			console.log(interestData[i])
+			var newcontent = document.createElement("p");
+        	newcontent.innerHTML = interestData[i]
+			content.appendChild(newcontent);  
+		}
+
+		post.className = "post";
+		outerDiv.append(post);
+		post.append(postHeader, content, likeButton);
+
+		console.log("wow no way")
+		document.getElementById("topsect").appendChild(outerDiv)
+
+	}   
+
+
+	function createRecDiv(recData) { 
+
+		var outerDiv = document.createElement("div");
+		var post = document.createElement("div");
+		
+		var headerDiv = document.createElement("div");
+		$(headerDiv).html('<b>Recommended Article:</b>')
+		
+		post.prepend(headerDiv);
+
+		const button = document.createElement("BUTTON");
+		button.innerText = "Like This Article";
+		button.className = "form_button commentButton";
+
+		var form = document.createElement("form");
+
+		const likeButton = document.createElement("BUTTON");
+		likeButton.innerText="like";
+		likeButton.className = "form_button likeButton";
+		likeButton.onclick = function(){
+			alert("successfully liked the article");
+			//console.log(articleData.headline)
+			$.post("/likeArticle", { headline: recData["headline"].S
+				
+
+			}, function(data) {
+				const content = JSON.parse(data)
+				
+				$("#myModal .body").text("article liked");
+				$('#myModal').modal('show'); 
+			});
+		};
+
+		const dislikeButton = document.createElement("BUTTON");
+		dislikeButton.innerText="unlike";
+		dislikeButton.className = "form_button dislikeButton";
+		dislikeButton.onclick = function(){
+            alert("successfully disliked the article");
+            //console.log(articleData.headline)
+			$.post("/deleteLikedArticle", { headline: articleData.headline
+                
+
+			}, function(data) {
+				
+				$("#myModal .body").text("article liked");
+				$('#myModal').modal('show'); 
+			});
+		};
+
+		var postHeader = document.createElement("div");
+		postHeader.innerHTML = recData["headline"].S;
+		
+		postHeader.style['margin-bottom'] = '10px';
+
+		var content = document.createElement("div");
+		var content3 = document.createElement("p");
+		content3.innerHTML = recData["url"].S
+		content.appendChild(content3);  
+		post.className = "post";
+		post.append(postHeader, content, likeButton, dislikeButton);
+		outerDiv.append(post);
+
+		document.getElementById("secondblock").appendChild(outerDiv)
+	}   
+
+	
+
+	var refresh = function() {
+		 	console.log("refreshed")
+	    	$.get('/getInterests',
+	    		function(data){
+					const interests = []
+	    			if(data.error == 1){
+	    				alert("an error ocurred")
+	    			}
+	    			else{	
+						for (let i = 0; i < data.interests.Items.length; i++) {
+							console.log(data.interests.Items[i]["category"].S)
+							console.log(data.interests.Items[i]["userID"].S)
+							interests[i] = data.interests.Items[i]["category"].S
+						}
+						createInterestDiv(interests)
+	    			}
+	    		}
+	    			
+	    	)
+	    	
+	    
+	};
+
+	var getRecs = function() {
+		 	console.log("recsgotten")
+	    	$.get('/getRecArticle',
+	    		function(data){
+					const interests = []
+	    			if(data.error == 1){
+	    				alert("an error ocurred")
+	    			}
+	    			else{	
+						console.log("here's the rec article data")
+						console.log(data.interests)
+						var maxlength = Math.min(4, data.interests.length)
+						for (let i = 0; i < maxlength; i++) {
+							createRecDiv(data.interests[i]);
+						}
+						
+	    			}
+	    		}
+	    			
+	    	)
+	    	
+	    
+	    };
+
+	
+	      
+	
+	$(document).ready(function() {
+		refresh();
+        createEditDiv();
+		getRecs();
+    })
+
+    $(document).ready(function() {
+		
+        for(var i=0; i < articleData.length; i++) {
+            console.log("damn")
+			createPostDiv(articleData[i]);
+		}
+    })
+
+
+function validate(term) {
+		var searchString = term.value;
+		if (searchString.length > 0 && searchString.match(/^[A-Za-z ]+$/)) {
+			//$('#search-term').text(searchString);
+			return true;
+		} else {
+		alert("A search term must be purely alphabetic and contain no whitespace");
+		var event = window.event;
+		event.stopPropagation();
+		event.preventDefault();
+	
+		document.searchForm.keyword.focus();
+		return false;
+	}
+}
+
+    </script>
+	
+	<body>
+
+		<div class = "flex-div">
+			
+			<div id = "firstblock">
+
+				<div id = "topsect">
+
+				<form name="searchForm" action="/searchNews"  onsubmit="validate(document.searchForm.keyword)">
+					<label for="keyword"># Search for a news article and enter the news hub</label><br/>
+					<input type="text" id="keyword" name="keyword" />
+					<input type="submit" value="Search">
+				</form>
+				
+				<h2 id="search-term" style="color: white"></h2>
+
+
+				<select id="categories" name="categories">
+					<option value="POLITICS">POLITICS</option>
+					<option value="WELNESS">WELLNESS</option>
+					<option value="ENTERTAINMENT">ENTERTAINMENT</option>
+					<option value="TRAVEL">TRAVEL</option>
+					<option value="STYLE & BEAUTY">STYLE & BEAUTY</option>
+					<option value="PARENTING">PARENTING</option>
+					<option value="HEALTHY LIVING">HEALTHY LIVING</option>
+					<option value="QUEER VOICES">QUEER VOICES</option>
+					<option value="FOOD & DRINK">FOOD & DRINK</option>
+					<option value="BUSINESS">BUSINESS</option>
+					<option value="COMEDY">COMEDY</option>
+					<option value="SPORTS">SPORTS</option>
+					<option value="BLACK VOICES">BLACK VOICES</option>
+					<option value="HOME & LIVING">HOME & LIVING</option>
+					<option value="PARENTS">PARENTS</option>
+		
+				</select>
+				</div>
+				
+			</div>
+
+			<div id = "secondblock">
+
+
+			</div>
+
+
+		</div>
+		
+	</body>
+</html>

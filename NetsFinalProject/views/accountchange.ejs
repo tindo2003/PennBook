@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	</head>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+	var username = <%- JSON.stringify(user) %>;
+	</script>
+
+<style>
+	body {
+		--color-background: #2B3948;
+		--color-card-primary: #202D3A;
+		--color-background-light: #364656;
+		--color-light-gray: #364656;
+		--color-dark-text: #616F8C;
+		--color-button-hover: #283343;
+		
+		--color-white: #CAD3DE;
+		--color-gray: #667483;
+		--color-accent-green-dark: #3E8C8C;
+		--color-accent-green-light: #50BFAB;
+		--color-error: #cc3333;
+		--color-success: #4bb544;
+		--border-radius: 4px;
+		
+		margin: 0;
+		height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 18px;
+		background: var(--color-background);
+		background-size: cover;
+	}
+	
+	.container{
+		width: 400px;
+		max-width: 400px;
+		margin: 1rem;
+		padding: 2rem;
+		box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+		border-radius: var(--border-radius);
+		background: #ffffff;
+	}
+	
+	.container,
+	.form__input,
+
+	.form__button {
+		font: 500 1rem "Lucida Console", "Courier New", monospace;
+	}
+	
+	.form--hidden {
+		display: none;
+	}
+	
+	.form > *:first-child {
+		margin-top: 0;
+	}
+	
+	.form > *:last-child {
+		margin-bottom: 0;
+	}
+	
+	.form__title {
+		margin-bottom: 2rem;
+		text-align: center;
+	}
+	
+	.form__message {
+		text-align: center;
+		margin-bottom: 1rem;
+		color:var(--color-error);
+	}
+	
+	.form__input-group {
+		margin-bottom: 1rem;
+	}
+	
+	.form__input {
+		display: block;
+		width: 100%;
+		padding: 0.75rem;
+		box-sizing: border-box;
+		border-radius: var(--border-radius);
+		border: 1px solid #dddddd;
+		outline: none;
+		background: #eeeeee;
+		transition: background 0.2s, border-color 0.2s;
+	}
+	
+	.form__input:focus {
+		border-color: var(--color-primary);
+		background: #ffffff;
+	}
+	
+	.form__input--error {
+		color: var(--color-error);
+		border-color: var(--color-error);
+	}
+	
+	.form__input-error-message {
+		margin-top: 0.5rem;
+		font-size: 0.85rem;
+		color: var(--color-error);
+	}
+	
+	.form__button {
+		width: 100%;
+		padding: 1rem 2rem;
+		font-weight: bold;
+		font-size: 1.1rem;
+		border: none;
+		border-radius: var(--border-radius);
+		outline: none;
+		cursor: pointer;
+		background: var(--color-primary);
+	}
+	
+	.form__button:hover {
+		background: rgba(0, 0, 0, 0.2);
+	}
+	
+	.form__button:active {
+		transform: scale(0.98);
+	}
+	
+	.form__text {
+		text-align: center;
+	}
+	
+	.form__link {
+		color: var(--color-secondary);
+		text-decoration: none;
+		cursor: pointer;
+	}
+	
+	.form__link:hover {
+		text-decoration: underline;
+	}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<form action="/accountChange" onSubmit="return false" id="changeForm" class="form">
+			<h1 class="form__title" id="login_error">Update Account Information:</h1>
+			<div class="form__input-group">
+				<input type="text" class="form__input" id="username" placeholder="Username" name="username">
+			<div><br>
+			
+			<div class="form__input-group">
+				<input type="email" class="form__input" id="email" placeholder="Email" name="email">
+			<div><br>
+							
+			<div class="form__input-group">
+				<input type="password" class="form__input" id="password" placeholder="Password" name="password">
+			<div><br>
+							
+			<div class="form__input-group">
+				<input type="text" class="form__input" id="affiliation" placeholder="Affiliation" name="affiliation">
+			<div><br>
+			
+			
+			<input type="submit" class="form__button" value="Update" onSubmit="return false">
+			
+
+			<p class="form__text">
+				<a class="form__link" href="homePage">Back</a>
+			</p>
+		</form>
+	</div>
+</body>
+
+<script>
+	//Set up socket to emit login whenever the user opens this page
+	var socket = io();
+	socket.emit('login', {
+		user: username
+	});
+
+
+	$(document).ready(function() {
+		//whenver the change form is submitted
+		$('#changeForm').submit(function(event) {
+			event.preventDefault();
+			//Check if at least one field is filled in
+			if ($('#email').val() == '' && $('#password').val() == '' &&
+					$('#affiliation').val() == '' && $('#username').val() == '') { 
+				alert('All fields are empty!')
+			} else {
+				//Get the current information of the user
+				$.get('/getUserInfo',
+					function(data) {
+						console.log("my data is", data)
+						var userID = data.Item.userID.S;
+						var username = $('#username').val();
+						var userName201 = data.Item.username.S;
+						var fname = data.Item.firstName.S;
+						var lname = data.Item.lastName.S;
+						var email = $('#email').val();
+						var password = $('#password').val();
+						var affiliation = $('#affiliation').val();
+						var birthDate = data.Item.birthday.S;
+						var statusUpdate = true;
+						if (username === '') {
+							username = data.Item.username.S;
+						} else {
+							//If the username is being changed, delete all of the old prefixes from the prefix table
+							$.post('/deleteUserIDFromPrefixTable',
+							{
+								userID: userID, 
+								oldUsername: userName201, 
+								newUsername: username
+							}, function(myData) {
+								if (myData.err) {
+									alert("can't change username. Oops!")
+								}
+							})
+						}
+						//If any fields are empty, replace it with the old values
+						if (affiliation === '') {
+							affiliation = data.Item.affiliation.S;
+							statusUpdate = false; //Keep status updated in case need to make a status update post
+						}
+						if (email === '') {
+							email = data.Item.email.S;
+						}
+						console.log("Updating account with", data);
+						
+						//Call post to update the account
+						$.post('/updateAccount', {
+								userID: userID,
+								username: username,
+								email: email,
+								password: password,
+								affiliation: affiliation},
+							function(data) {
+								if (!data.success) {
+									alert("This username is already in use!");
+								} else {
+									if (statusUpdate) {
+										console.log("Creating status update");
+										var content = username + " has updated their affiliation to: " + affiliation;
+										//If needs status update, then call post to create post with the same creator as user
+										$.post('addPost', {username: username, creatorname: username, content: content}, function(data) {
+											if (data.success) {
+												console.log("Successfully added post");
+											}
+										});
+									}
+									$('#username').val("");
+									$('#email').val("");
+									$('#password').val("");
+									$('#affiliation').val("");
+									alert("Succesfully updated account information!");
+								}
+							}
+						);
+							
+							
+					}
+				);
+			}
+		});
+	});
+</script>
+
+
+</html>

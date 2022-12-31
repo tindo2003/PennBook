@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "async": "^3.2.4",
+    "socket.io": "^4.5.4",
+    "vis-network": "^9.1.2",
+    "body-parser": "^1.20.1",
+    "socket.io": "^4.5.4",
+    "luxon": "^3.1.1",
+    "moment": "^2.29.4"
+  }
+}

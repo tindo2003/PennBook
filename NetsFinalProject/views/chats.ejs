@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+            #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+            #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+            #input:focus { outline: none; }
+            #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+      
+            #chats { list-style-type: none; margin: 0; padding: 0; }
+            #chats > li { padding: 0.5rem 1rem; }
+            #online-users { list-style-type: none; margin: 0; padding: 0; }
+
+            body {
+                --color-background: #2B3948;
+                --color-card-primary: #202D3A;
+                --color-background-light: #364656;
+                --color-dark-gray: #364656;
+                --color-dark-text: #616F8C;
+                --color-button-hover: #283343;
+                --color-white: #CAD3DE;
+                --color-gray: #667483;
+                --color-accent-green-dark: #3E8C8C;
+                --color-accent-green-light: #50BFAB;
+                --border-radius: 4px;
+                
+                color: var(--color-white);
+                background: var(--color-background);
+                
+            }
+
+            input[type="text"], textarea {
+                color : var(--color-dark-text); 
+            }
+
+            *{
+                margin: 0;
+                padding: 0;
+                font-family: "Lucida Console", "Courier New", monospace;
+                box-sizing: border-box;
+            }
+            
+            a{
+                text-decoration: none;
+                color: var(--color-white);
+            }
+
+            .online{
+                display:inline-block;
+                border:2px solid var(--color-dark-gray);
+                padding:10px;
+            }
+
+            .chat-container{
+                align-items: center;
+                margin-left: 20vw;
+            }
+
+            .left-container{
+                display: flex;
+                flex-wrap: wrap;
+                width: 19vw;
+                height: 100vh;
+                padding: 2rem;
+                box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+                border-radius: var(--border-radius);
+                background: var(--color-button-hover);
+                align-items: center;
+                float:left;
+                text-align: center;
+            }
+
+            .search-bar{			
+                border: 1px solid #5A5A5A;
+                margin-left: 15px;
+                padding: 6px 12px;
+                border-radius: var(--border-radius);
+                transition: background 0.2s, border-color 0.2s;
+                outline: none;
+                background: #eeeeee;
+            }
+
+            .search-bar:focus{
+                border: 1px solid var(--color-white);
+                background: #ffffff;
+            }
+            
+            .search-bar input{
+                width: 400px;
+                border: 0;
+                outline: 0;
+                background: transparent;
+            }
+
+            .popup{
+                position:absolute;
+                left:0;
+                right:0;
+                margin-left:auto;
+                margin-right:auto;
+                top:0;
+                bottom:0;
+                margin-top:auto;
+                margin-bottom:auto;
+                width:25%;
+                height:180px;
+                z-index:100;
+                background: var(--color-gray);
+                border-radius: var(--border-radius);
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .form__button {
+                width: 100%;
+                padding: 1.5rem 2rem;
+                font-weight: bold;
+                font-size: 1.1rem;
+                color: #ffffff;
+                border: none;
+                border-radius: var(--border-radius);
+                outline: none;
+                cursor: pointer;
+                box-shadow: 7px 7px 20px rgb(0, 0, 0, 0.2);
+                background: var(--color-background);
+            }
+            
+            .form__button:hover {
+                background: var(--color-button-hover)
+            }
+            
+            .form__button:active {
+                transform: scale(0.98);
+            }
+
+            .exit__button {
+                width: 100%;
+                padding: 1rem 2rem;
+                font-weight: bold;
+                font-size: 1.1rem;
+                color: #ffffff;
+                border: none;
+                border-radius: var(--border-radius);
+                outline: none;
+                cursor: pointer;
+                box-shadow: 7px 7px 20px rgb(0, 0, 0, 0.2);
+                background: var(--color-accent-green-light);
+            }
+            
+            .exit__button:hover {
+                background: var(--color-accent-green-dark)
+            }
+            
+            .exit__button:active {
+                transform: scale(0.98);
+            }
+        </style>
+	</head>
+	
+	<body>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            var socket = io();
+            var username = <%- JSON.stringify(username) %>;
+
+            $(document).ready(function() {
+                //When 'online' is emitted, then clear current online users and re-render them
+                socket.on('online', (argu) => {
+                    
+                    console.log("Client side online: ", argu);
+                    $('#online-users').empty();
+                    document.querySelectorAll('.popup').forEach(pop => pop.remove());
+
+                    //get online friends by filtering the online list passed through by 'online' socket
+                    $.post('/getOnlineFriends', {
+                            username: username,
+                            onlineusers: argu},
+                        function(data) {
+                            console.log("Getting online friends");
+                            if (data.success) {
+                                console.log("Filtered online users: ", data.list);
+                                var arg = data.list;
+                                
+                                //iterate through each user, creating a span that is clickable and creates a popup form
+                                for (let i = 0; i < arg.length; i++) {
+                                    var onlineUser = document.createElement('li');
+
+                                    var div = document.createElement('div');
+
+                                    //create span that is clickable and has the name of online user
+                                    var span = document.createElement('span');
+                                    span.class = "online_span";
+                                    span.innerHTML = "@" + arg[i];
+                                    span.addEventListener('click', function() {
+                                        toggle_popup(arg[i]);
+                                    })
+
+                                    div.appendChild(span);
+                                    onlineUser.appendChild(div);
+                                    var curr_online = arg[i];
+                                    console.log("Current online user: ", curr_online);
+
+                                    //Use jquery to create popup with buttons to trigger events
+                                    var popup = 
+                                        "<div class='popup' style='display:none;' id=" + arg[i] + ">" + 
+                                            "<p>User: " + arg[i] + "</p>" + 
+                                            "<div style='padding:.75rem'><button onclick='return create_room(" + arg[i] + ")' class='form__button'>Create New Chat With User</button></div>" +
+                                            "<div style='padding:.75rem'><button onclick='return close_popups();' class='exit__button'>Done</button></div>" +
+                                            "</div>";
+                                    $('body').append(popup);
+
+                                    $('#online-users').append(onlineUser);
+                                    $('#online-users').animate({
+                                        scrollTop: $('#online-users').get(0).scrollHeight
+                                    }, 0);
+                                }
+                            } else {
+                                console.log("Failed to get online users");
+                            }
+                        }
+                    );  
+                });
+
+                //Update online users every 5 seconds unless a popup is open
+                window.setInterval(function() {
+                    console.log("Checking online status");
+                    condition = true;
+                    document.querySelectorAll('.popup').forEach(pop => {
+                        if (pop.style.display == 'block') {
+                            console.log("Pop up open");
+                            condition = false;
+                        }
+                    });
+                    if (condition) {
+                        console.log("No pop up open");
+                        socket.emit('online');
+                    }
+                }, 5000);
+            })
+
+            //toggle a specifc online user's popup
+            function toggle_popup(online_user) {
+                console.log("Online user: ", online_user);
+                var div = document.getElementById(online_user);
+                div.style.display = (div.style.display == 'none') ? 'block' : 'none';
+            }
+
+            //close all popups
+            function close_popups() {
+                document.querySelectorAll('.popup').forEach(pop => {
+                    pop.style.display = 'none';
+                });
+            }
+
+            //Function to create a new room and add the clicked user into it
+            function create_room(recip) {
+                var recipient = (recip.id) ? recip.id : recip;
+                console.log("Intended recip: ", recipient);
+                $.post('/createChatRoom', {
+                        sender: username,
+                        recipient: recipient},
+                    function(data) {
+                        console.log("Send post for adding user");
+                        if (!data.success) {
+                            alert("Error creating chat!");
+                        } else {
+                            console.log("Created new chat");
+                            close_popups();
+                            window.location.href = "/chatRoom?chatID=" + data.chatID;
+                        }
+                    }
+                );
+            }
+        </script>
+        <main>
+            <div class="left">
+                <div class="left-container">
+                    <div class="bot-panel">
+                        <b>Online Friends: </b>
+                        <div class="online">
+                            <ul id="online-users" style="height:15vh; width:13vw; overflow: auto">
+                            </ul>
+                        </div>
+                    </div>
+                </div>              
+            </div>
+            <div class="chat-container">
+                <div>
+                    <p>User Chatrooms: </p>
+                    <ul id="chats" style="height:93vh; overflow: auto">
+                    </ul>
+                </div>
+            </div>
+            <script>
+                //Tell socket we are online
+                socket.emit('login', {
+                    user: username
+                });
+                //Emit on open
+                socket.emit('online');
+                //Get all the chats of a user
+                var chatsMap = <%- JSON.stringify(chatsMap) %>;
+                console.log(chatsMap);
+                console.log("Loading saved chat rooms");
+                if (chatsMap.length > 0) {
+                    for (let chatItem of chatsMap) { //For each chat, create list item
+                        var newChat = document.createElement('li');
+
+                        //Add each user to the title of the list item
+                        var title = "";
+                        for (let j = 0; j < chatItem.users.length; j++) {
+                            let word = chatItem.users[j];
+                            console.log("word", word);
+                            title = title + word + ", ";
+                        }
+                        title = title.slice(0, -2);
+                        console.log("title", title);
+                        //link the chat id of the current chat
+                        var a = document.createElement('a');
+                        var link = document.createTextNode(title);
+                        var ref =  "/chatRoom?chatID=" + chatItem.chatID;
+                        a.appendChild(link);
+                        a.title = title;
+                        a.href = ref;
+
+                        newChat.appendChild(a);
+
+                        $('#chats').append(newChat);
+                        $('#chats').animate({
+                            scrollTop: $('#chats').get(0).scrollHeight
+                        }, 0);
+                    }
+                } else {//handle case where use has no chats
+                    var newMsg = document.createElement('li');
+                    newMsg.appendChild(document.createTextNode("No chats to display!"));
+                    $('#chats').append(newMsg);
+                    $('#chats').animate({
+                        scrollTop: $('#chats').get(0).scrollHeight
+                    }, 0);
+                }
+            </script>
+        </main>
+        
+	</body>
+
+</html>

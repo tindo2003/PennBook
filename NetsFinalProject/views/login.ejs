@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="utf-8">
+		<title>Login/Sign Up</title>
+		<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		 FONTS TO USE: LATO + ABRILFATFACE (ON GOOGLE FONTS)
+		-->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+		var socket = io();
+		$(document).ready(function() {
+			$('#loginForm').submit(function(event) {
+				event.preventDefault();
+				console.log($('#username').val());
+				console.log($('#password').val())
+				if ($('#username').val() == '' || $('#password').val() == '') { 
+					$('#loginError').html("One or more input field(s) are empty!");
+				} else {
+					$.post('/login', {
+						username: $('#username').val(),
+						password: $('#password').val()
+					}, function(result) {
+						console.log(result);
+						if(result.success) {
+							socket.emit('login', {
+								user: $('#username').val()
+							});
+							$('#loginError').html("");
+							window.location.replace(result.url)
+						} else {
+							$('#loginError').html("Incorrect username and/or password!");
+						}
+					})
+				}
+			})
+			
+			$('#signupForm').submit(function(event) {
+				event.preventDefault();
+				if ($('#fname').val() == '' || $('#lname').val() == '' || $('#email').val() == '' || $('#signupPassword').val() == '' ||
+						$('#affiliation').val() == '' || $('#birthday').val() == '' || $('#signupUsername').val() == '' || 
+						$('#interestID1').val() == '' || $('#interestID2').val() == '') { 
+					$('#signupError').html("One or more input field(s) are empty!");
+				} else {
+					var inter = $('#categories').val();
+					console.log('inter:', inter);
+					$.post('/createAccount', {
+						username: $('#signupUsername').val(),
+						fname: $('#fname').val(),
+						lname: $('#lname').val(),
+						email: $('#email').val(),
+						password: $('#signupPassword').val(),
+						affiliation: $('#affiliation').val(),
+						birthDate: $('#birthday').val(),
+						interest: inter
+					},
+					function(data) {
+						console.log(data);
+						if (!data.success) {
+							$('#signupError').html("Username already exists! Choose another one.");
+							alert('Username already exists!');
+						} else {
+							$('#signupError').html("");
+							//add news interest
+							window.location.replace(data.url);
+						}
+					})
+					
+				}
+			})
+			
+			// toggles between login and signup pages
+			const loginForm = document.querySelector("#loginForm");
+			const createAccountForm = document.querySelector("#signupForm");
+			
+			$("#linkCreateAccount").click(function(event) {
+				event.preventDefault();
+				loginForm.classList.add("form--hidden");
+				createAccountForm.classList.remove("form--hidden");
+			})
+			
+			$("#linkLogin").click(function(event) {
+				event.preventDefault();
+				loginForm.classList.remove("form--hidden");
+				createAccountForm.classList.add("form--hidden");
+			})
+		})
+		</script>
+		
+		<style>
+		body {
+			--color-background: #2B3948;
+			--color-card-primary: #202D3A;
+			--color-background-light: #364656;
+			--color-light-gray: #364656;
+			--color-dark-text: #616F8C;
+			--color-button-hover: #283343;
+			
+			--color-white: #CAD3DE;
+			--color-gray: #667483;
+			--color-accent-green-dark: #3E8C8C;
+			--color-accent-green-light: #50BFAB;
+			--color-error: #cc3333;
+			--color-success: #4bb544;
+			--border-radius: 4px;
+			
+			margin: 0;
+			height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			background: var(--color-background);
+			background-size: cover;
+		}
+		
+		.container{
+			width: 400px;
+			max-width: 400px;
+			margin: 1rem;
+			padding: 2rem;
+			box-shadow: 7px 7px 20px rgb(0, 0, 0, 0.2);
+			border-radius: var(--border-radius);
+			background: var(--color-card-primary);
+		}
+		
+		.container,
+		.form__input,
+		.form__button {
+			font: 500 1rem "Lucida Console", "Courier New", monospace;
+		}
+		
+		.form--hidden {
+			display: none;
+		}
+		
+		.form > *:first-child {
+			margin-top: 0;
+		}
+		
+		.form > *:last-child {
+			margin-bottom: 0;
+		}
+		
+		.form__title {
+			margin-bottom: 2rem;
+			text-align: center;
+			color: white;
+		}
+		
+		.form__message {
+			text-align: center;
+			margin-bottom: 1rem;
+			color:var(--color-error);
+		}
+		
+		.form__input-group {
+			margin-bottom: 1rem;
+		}
+		
+		.form__input {
+			display: block;
+			width: 100%;
+			padding: 0.75rem;
+			box-sizing: border-box;
+			border-radius: var(--border-radius);
+			border: 1px solid #dddddd;
+			outline: none;
+			background: #eeeeee;
+			transition: background 0.2s, border-color 0.2s;
+		}
+		
+		.form__input:focus {
+			border-color: var(--color-background);
+			background: #ffffff;
+		}
+		
+		.form__input--error {
+			color: var(--color-error);
+			border-color: var(--color-error);
+		}
+		
+		.form__input-error-message {
+			margin-top: 0.5rem;
+			font-size: 0.85rem;
+			color: var(--color-error);
+		}
+		
+		.form__button {
+			width: 100%;
+			padding: 1rem 2rem;
+			font-weight: bold;
+			font-size: 1.1rem;
+			color: #ffffff;
+			border: none;
+			border-radius: var(--border-radius);
+			outline: none;
+			cursor: pointer;
+			box-shadow: 7px 7px 20px rgb(0, 0, 0, 0.2);
+			background: var(--color-background);
+		}
+		
+		.form__button:hover {
+			background: var(--color-button-hover)
+		}
+		
+		.form__button:active {
+			transform: scale(0.98);
+		}
+		
+		.form__text {
+			text-align: center;
+		}
+		
+		.form__link {
+			color: var(--color-dark-text);
+			text-decoration: none;
+			cursor: pointer;
+		}
+		
+		.form__link:hover {
+			text-decoration: underline;
+		}
+		</style>
+	</head>
+	
+	<body>
+		<div class="container">
+			<form action="/login" onSubmit="return false" id="loginForm" class="form">
+				<h1 class="form__title" id="login_error">Login</h1>
+				<div class="form__message form__message--error" id="loginError"></div>
+				<div class="form__input-group">
+					<input type="text" class="form__input" autofocus id="username" placeholder="Username">	
+				</div>
+				<div class="form__input-group">
+					<input type="password" class="form__input" autofocus id="password" placeholder="Password">	
+				</div>
+				<button class="form__button" type="submit" onSubmit="return false">Sign in</button>
+				<p class="form__text">
+					<a id="linkCreateAccount" class="form__link">Don't have an account? Create account</a>
+				</p>
+			</form>
+			
+			<form action="/createaccount" onSubmit="return false" id="signupForm" class="form form--hidden">
+				<h1 class="form__title">Create Account</h1>
+				<div class="form__message form__message--error" id="signupError"></div>
+				<div class="form__input-group">
+					<input type="text" class="form__input" autofocus id="signupUsername" placeholder="Username">	
+				</div>
+				<div class="form__input-group">
+					<input type="email" class="form__input" autofocus id="email" placeholder="Email">	
+				</div>
+				<div class="form__input-group">
+					<input type="text" class="form__input" autofocus id="fname" placeholder="First Name">	
+				</div>
+				<div class="form__input-group">
+					<input type="text" class="form__input" autofocus id="lname" placeholder="Last Name">	
+				</div>
+				<div class="form__input-group">
+					<input type="password" class="form__input" autofocus id="signupPassword" placeholder="Password">	
+				</div>
+				<div class="form__input-group">
+					<input type="text" class="form__input" autofocus id="affiliation" placeholder="Affiliation">	
+				</div>
+				<div class="form__input-group">
+					<input type="date" class="form__input" autofocus id="birthday">	
+				</div>
+				<div class="form__input-group">
+					<label style = "color: white">Select a news interest:</label>
+					<select id="categories" name="categories">
+						<option value="POLITICS">POLITICS</option>
+						<option value="WELNESS">WELLNESS</option>
+						<option value="ENTERTAINMENT">ENTERTAINMENT</option>
+						<option value="TRAVEL">TRAVEL</option>
+						<option value="STYLE & BEAUTY">STYLE & BEAUTY</option>
+						<option value="PARENTING">PARENTING</option>
+						<option value="HEALTHY LIVING">HEALTHY LIVING</option>
+						<option value="QUEER VOICES">QUEER VOICES</option>
+						<option value="FOOD & DRINK">FOOD & DRINK</option>
+						<option value="BUSINESS">BUSINESS</option>
+						<option value="COMEDY">COMEDY</option>
+						<option value="SPORTS">SPORTS</option>
+						<option value="BLACK VOICES">BLACK VOICES</option>
+						<option value="HOME & LIVING">HOME & LIVING</option>
+						<option value="PARENTS">PARENTS</option>
+					</select>
+				</div>
+
+				<button class="form__button" type="submit" onSubmit="return false">Create Account</button>
+				<p class="form__text">
+					<a id="linkLogin" class="form__link">Have an account? Sign in</a>
+				</p>
+			</form>
+		</div>
+</html>

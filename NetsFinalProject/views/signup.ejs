@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<style type="text/css">
+			body {
+			padding-top: 40px;
+			padding-bottom: 40px;
+			background-color: #B6D8F2;
+			}
+			.login-box {
+			font-family: "Lucida Console", "Courier New", monospace;
+			background-color: #F4CFDF;
+			width: 400px;
+			border-radius: 25px;
+			padding: 40px;
+			height: 620px;
+			margin: 0 auto;
+			}
+			.login-box .form-control {
+			margin-bottom: 10px;
+			}
+			</style>
+	</head>
+	<script type="text/javascript">
+	
+		$(document).ready(function() {
+			$('#signupForm').submit(function(event) {
+				event.preventDefault();
+				if ($('#fname').val() == '' || $('#lname').val() == '' || $('#email').val() == '' || $('#password').val() == '' ||
+						$('#affiliation').val() == '' || $('#birthday').val() == ''
+						|| $('#interest1').val() == '' || $('interest2').val() == '')
+						  { 
+					alert('One or more input field(s) are empty!')
+				} else {
+					$.post('/createAccount', {
+						username: $('#username').val(),
+						fname: $('#fname').val(),
+						lname: $('#lname').val(),
+						email: $('#email').val(),
+						password: $('#password').val(),
+						affiliation: $('#affiliation').val(),
+						birthDate: $('#birthday').val()},
+					function(data) {
+						console.log(data);
+						if (!data.success) {
+							alert('Username already exists!');
+						} else {
+							window.location.replace(data.url);
+						}
+				})
+			}})
+		})
+	</script>
+	<body>
+
+		<div class = "login-box">
+			<h4>Sign up page</h4>
+			<form action="/createaccount" onSubmit="return false" id="signupForm">
+				<input type="text"  id="username" placeholder="username" name="username" size = "20" class = "form-control">
+				<br>
+				
+				<input type="text"  id="fname" placeholder="First name" name="fname" size = "20" class = "form-control">
+				
+				<br>
+				<input type="text"  id="lname" placeholder="Last name" name="lname" size = "20" class = "form-control">
+				
+				<br>
+				<input type="email"  id="email" placeholder="Email" name="email" size = "20" class = "form-control">
+				
+				<br>
+				<input type="password" id="password" placeholder="Password" name="password" size = "20" class = "form-control">
+				
+				<br>
+				<input type="text" id="affiliation" placeholder="Affiliation" name="affiliation" size = "20" class = "form-control">
+				
+				<br>
+				<input type="date" id="birthday" name="birthDate" size = "20" class = "form-control"> 
+
+				<br>
+				<input type="text" id="interest1" placeholder="Interest 1" >
+
+				<br> 
+				<input type="text" id="interest2" placeholder="Interest 2" >
+
+				<br>
+				<input type="submit" value="Sign Up" onSubmit="return false" class = "btn btn-lg btn-primary btn-block"  size = "10">
+				
+			</form>
+		</div>
+	</body>
+
+
+</html>

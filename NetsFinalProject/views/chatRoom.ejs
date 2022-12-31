@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <style>
+            body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      
+            #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+            #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+            #input:focus { outline: none; }
+            #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+      
+            #messages { list-style-type: none; margin: 0; padding: 0; }
+            #messages > li { padding: 0.5rem 1rem; }
+            #online-users { list-style-type: none; margin: 0; padding: 0; }
+
+            body {
+                --color-background: #2B3948;
+                --color-card-primary: #202D3A;
+                --color-background-light: #364656;
+                --color-dark-gray: #364656;
+                --color-dark-text: #616F8C;
+                --color-button-hover: #283343;
+                --color-white: #CAD3DE;
+                --color-gray: #667483;
+                --color-accent-green-dark: #3E8C8C;
+                --color-accent-green-light: #50BFAB;
+                --border-radius: 4px;
+                
+                color: var(--color-white);
+                background: var(--color-background);
+                
+            }
+
+            input[type="text"], textarea {
+                color : var(--color-dark-text); 
+            }
+
+            *{
+                margin: 0;
+                padding: 0;
+                font-family: "Lucida Console", "Courier New", monospace;
+                box-sizing: border-box;
+            }
+            
+            a{
+                text-decoration: none;
+                color: var(--color-white);
+            }
+
+            .online{
+                display:inline-block;
+                border:2px solid var(--color-dark-gray);
+                padding:10px;
+            }
+
+            .chat-container{
+                align-items: center;
+                margin-left: 20vw;
+            }
+
+            .left-container{
+                display: flex;
+                flex-wrap: wrap;
+                width: 19vw;
+                height: 100vh;
+                padding: 2rem;
+                box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+                border-radius: var(--border-radius);
+                background: var(--color-button-hover);
+                align-items: center;
+                float:left;
+                text-align: center;
+            }
+
+            .search-bar{			
+                border: 1px solid #5A5A5A;
+                margin-left: 15px;
+                padding: 6px 12px;
+                border-radius: var(--border-radius);
+                transition: background 0.2s, border-color 0.2s;
+                outline: none;
+                background: #eeeeee;
+            }
+
+            .search-bar:focus{
+                border: 1px solid var(--color-white);
+                background: #ffffff;
+            }
+            
+            .search-bar input{
+                width: 400px;
+                border: 0;
+                outline: 0;
+                background: transparent;
+            }
+
+            .popup{
+                position:absolute;
+                left:0;
+                right:0;
+                margin-left:auto;
+                margin-right:auto;
+                top:0;
+                bottom:0;
+                margin-top:auto;
+                margin-bottom:auto;
+                width:25%;
+                height:250px;
+                z-index:100;
+                background: var(--color-gray);
+                border-radius: var(--border-radius);
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .form__button {
+                width: 100%;
+                padding: 1.5rem 2rem;
+                font-weight: bold;
+                font-size: 1.1rem;
+                color: #ffffff;
+                border: none;
+                border-radius: var(--border-radius);
+                outline: none;
+                cursor: pointer;
+                box-shadow: 7px 7px 20px rgb(0, 0, 0, 0.2);
+                background: var(--color-background);
+            }
+            
+            .form__button:hover {
+                background: var(--color-button-hover)
+            }
+            
+            .form__button:active {
+                transform: scale(0.98);
+            }
+
+            .exit__button {
+                width: 100%;
+                padding: 1rem 2rem;
+                font-weight: bold;
+                font-size: 1.1rem;
+                color: #ffffff;
+                border: none;
+                border-radius: var(--border-radius);
+                outline: none;
+                cursor: pointer;
+                box-shadow: 7px 7px 20px rgb(0, 0, 0, 0.2);
+                background: var(--color-accent-green-light);
+            }
+            
+            .exit__button:hover {
+                background: var(--color-accent-green-dark)
+            }
+            
+            .exit__button:active {
+                transform: scale(0.98);
+            }
+
+            .text__button {
+                width: 25%;
+                padding: 1.07rem 2rem;
+                font-weight: bold;
+                font-size: 1.1rem;
+                color: #ffffff;
+                border: none;
+                border-radius: var(--border-radius);
+                outline: none;
+                cursor: pointer;
+                box-shadow: 7px 7px 20px rgb(0, 0, 0, 0.2);
+                background: var(--color-accent-green-light);
+            }
+            
+            .text__button:hover {
+                background: var(--color-accent-green-dark)
+            }
+            
+            .text__button:active {
+                transform: scale(0.98);
+            }
+
+            .text__input {
+                display: block;
+                width: 90%;
+                padding: 0.75rem;
+                float:left;
+                box-sizing: border-box;
+                border-radius: var(--border-radius);
+                border: 1px solid #dddddd;
+                outline: none;
+                background: #eeeeee;
+                transition: background 0.2s, border-color 0.2s;
+            }
+          </style>
+	</head>
+	
+	<body>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            var socket = io();
+        
+            var roomID = <%- JSON.stringify(roomID) %>;
+            var userID = <%- JSON.stringify(user) %>;
+            var firstName = <%- JSON.stringify(firstName) %>;
+            var lastName = <%- JSON.stringify(lastName) %>;
+            var messages = <%- JSON.stringify(messages) %>;
+            var username = <%- JSON.stringify(username) %>;
+
+            console.log("Client side messages: ", messages);
+
+            $(document).ready(function() {
+
+                //Re-render online users whenver the online socket signal is recieved
+                socket.on('online', (argu) => {
+                    
+                    console.log("Client side online: ", argu);
+                    $('#online-users').empty(); //empty the current list
+                    document.querySelectorAll('.popup').forEach(pop => pop.remove()); //clear popups to not have double
+
+                    //Post to get all online friends, given that the online socket emit gave list of all online users
+                    $.post('/getOnlineFriends', {
+                            username: username,
+                            onlineusers: argu},
+                        function(data) {
+                            console.log("Getting online friends");
+                            if (data.success) {
+                                console.log("Filtered online users: ", data.list);
+                                const arg = data.list;
+                                //iterate through each user, creating a span that is clickable and creates a popup form
+                                for (let i = 0; i < arg.length; i++) {
+                                    console.log("Curr arg ", arg[i]);
+                                    const curr_arg = arg[i];
+                                    var onlineUser = document.createElement('li');
+
+                                    var div = document.createElement('div');
+
+                                    //create span that is clickable and has the name of online user
+                                    var span = document.createElement('span');
+                                    span.class = "online_span";
+                                    span.innerHTML = "@" + curr_arg;
+                                    span.addEventListener('click', function() {
+                                        toggle_popup(curr_arg + "");
+                                    })
+
+                                    div.appendChild(span);
+                                    onlineUser.appendChild(div);
+
+                                    //Use jquery to create popup with buttons to trigger events
+                                    var popup = 
+                                        "<div class='popup' style='display:none;' id=" + curr_arg + ">" + 
+                                            "<p>User: " + curr_arg + "</p>" + 
+                                            "<div style='padding:.75rem'><button onclick='add_user(" + curr_arg + ");' class='form__button'>Add User To Current Chat</button></div>" +
+                                            "<div style='padding:.75rem'><button onclick='create_room(" + curr_arg + ");' class='form__button'>Create New Chat With User</button></div>" +
+                                            "<div style='padding:.75rem'><button onclick='return close_popups();' class='exit__button'>Done</button></div>" +
+                                            "</div>";
+                                    $('body').append(popup);
+
+                                    $('#online-users').append(onlineUser);
+                                    $('#online-users').animate({
+                                        scrollTop: $('#online-users').get(0).scrollHeight
+                                    }, 0);
+                                }
+                            } else {
+                                console.log("Failed to get online users");
+                            }
+                        }
+                    );  
+                });
+
+                //Socket emits chat message, this renders it
+                socket.on('chat message', function(msg) {
+                    //Creat list element
+                    var newMsg = document.createElement('li');
+
+                    //Given the timestamp of the message, format it into a legible time
+                    var time = new Date(0);
+                    time.setUTCSeconds(Date.now() / 1000);
+                    var date;
+                    var minute = (Math.floor(time.getMinutes() / 10) == 0) ? "0" + time.getMinutes() : time.getMinutes();
+                    var hours;
+                    var ampm;
+                    if (time.getHours() == 0) { //logic for AM or PM
+                        hours = 12;
+                        ampm = "AM";
+                    } else if (time.getHours() >= 12) {
+                        hours = (time.getHours() == 12) ? time.getHours() : time.getHours() - 12;
+                        ampm = "PM";
+                    } else {
+                        hours = time.getHours();
+                        ampm = "AM";
+                    }
+                    date = "Today at " + hours + ":" + minute + " " + ampm;
+                    
+                    //Create header for each message that contains sender name and time of message
+                    var text = document.createElement('b');
+                    text.innerHTML =  msg.firstName + " " + msg.lastName + " (@" + msg.username + ") ";
+                    newMsg.appendChild(text);
+                    newMsg.appendChild(document.createTextNode(date));
+                    newMsg.appendChild(document.createElement('br'));
+                    newMsg.appendChild(document.createTextNode(msg.text));
+                    $('#messages').append(newMsg);
+                    $('#messages').animate({
+                        scrollTop: $('#messages').get(0).scrollHeight
+                    }, 0);
+                });
+
+                //Get element of the chat input form
+                var chatInput = document.getElementById("chatInput");
+
+                //Create event listener for the enter key
+                chatInput.addEventListener("keypress", function(key) {
+                    if (key.key === "Enter") {
+                        //Stop from submitting the form
+                        key.preventDefault();
+                        //Click the submit button
+                        document.getElementById("formButton").click();
+                    }
+                });
+
+                //Every 5 seconds, get a new list of online users by emitting 'online'
+                window.setInterval(function() {
+                    console.log("Checking online status");
+                    condition = true;
+                    document.querySelectorAll('.popup').forEach(pop => { //Don't do this if a form is opened
+                        if (pop.style.display == 'block') {
+                            console.log("Pop up open");
+                            condition = false;
+                        }
+                    });
+                    if (condition) {
+                        console.log("No pop up open");
+                        socket.emit('online');
+                    }
+                }, 5000);
+            })
+
+            //Function to close a popup
+            function toggle_popup(online_user) {
+                console.log("Online user: ", online_user);
+                var div = document.getElementById(online_user);
+                div.style.display = (div.style.display == 'none') ? 'block' : 'none';
+            }
+
+            //function to clase all popups
+            function close_popups() {
+                document.querySelectorAll('.popup').forEach(pop => {
+                    pop.style.display = 'none';
+                });
+            }
+
+            //Function to add a user if their popup button is clicked to add
+            function add_user(recip) {
+                var recipient = (recip.id) ? recip.id : recip;
+                $.post('/addUserToChatRoom', {
+                        sendUser: username,
+                        recipientUser: recipient,
+                        chatID: roomID},
+                    function(data) {
+                        console.log("Send post for adding user");
+                        if (!data.success) {
+                            alert("Error adding user to chat!");
+                        } else {
+                            console.log("Added user to chat");
+                            if (data.message) {
+                                alert(data.message);
+                            }
+                            close_popups();
+                        }
+                    }
+                );
+            }
+
+            //Function to create a new room and add the clicked user into it
+            function create_room(recip) {
+                var recipient = (recip.id) ? recip.id : recip;
+                console.log("Intended recip: ", recipient);
+                $.post('/createChatRoom', {
+                        sender: username,
+                        recipient: recipient},
+                    function(data) {
+                        console.log("Send post for adding user");
+                        if (!data.success) {
+                            alert("Error creating chat!");
+                        } else {
+                            console.log("Created new chat");
+                            close_popups();
+                            window.location.href = "/chatRoom?chatID=" + data.chatID;
+                        }
+                    }
+                );
+            }
+
+        </script>
+        <script>
+            //If a user sends a message, both emit to socket to display and log it into the db
+            function sendChat() {
+                console.log("invoked sendChat()");
+                var input = $('#chatInput').val().trim();
+                if (input !== '') { //Only work if non-empty text box
+                    $.post('/logMessage', {
+                            userID: userID,
+                            chatID: roomID,
+                            message: input,
+                            timestamp: Date.now() + ""},
+                        function(data) {
+                            if (!data.success) {
+                                alert("Error sending message!");
+                            } else {
+                                console.log("Added message to db");
+                                socket.emit('chat message', {
+                                    text: input,
+                                    sender: userID,
+                                    room: roomID,
+                                    firstName: firstName,
+                                    lastName: lastName,
+                                    username: username
+                                });
+                            }
+                        }
+                    );
+                }
+                $('#chatInput').val('');
+                $('#chatInput').focus();
+            }
+
+        </script>
+        <main>
+            <div class="left">
+                <div class="left-container">
+                    <div class="bot-panel">
+                        <p class="form__text">
+                            <a class="form__link" href="/chats">Back</a>
+                        </p>
+                        <b>Online Friends: </b>
+                        <div class="online">
+                            <ul id="online-users" style="height:15vh; width:13vw; overflow: auto">
+                            </ul>
+                        </div>
+                    </div>
+                    <!--<div class="bot-panel">
+                        <b>Chat Members: </b>
+                        <div class="online">
+                            <ul id="chat-members" style="height:15vh; width:13vw; overflow: auto">
+                            </ul>
+                        </div>-->
+                    </div>
+                </div>              
+            </div>
+            <div class="chat-container">
+                <div>
+                    <ul id="messages" style="height:93vh; overflow: auto">
+                    </ul>
+                </div>
+                
+                <div class="text-bar">
+                    <form id = "chatForm">
+                        <input placeholder="Message" class="text__input" type="text" id="chatInput" autofocus>
+                        <button type="button" class="text__button" id="formButton" onClick="return sendChat();" style="width:5vw">Send</button>
+                    </form>
+                </div>
+            </div>
+    
+            <script>                
+                //Load all saved messages in the current chat through chatID
+                console.log("Loading saved messages");
+                for (var i = 0; i < messages.length; i++) {
+                    if (messages[i]) {
+                        //Do same message display as above
+                        var newMsg = document.createElement('li');
+                        var time = new Date(0);
+                        time.setUTCSeconds(messages[i].timestamp / 1000);
+                        var date;
+                        var currTime = new Date(0);
+                        currTime.setUTCSeconds(Date.now() / 1000);
+                        if (time.getDate() == currTime.getDate() && time.getFullYear() == currTime.getFullYear()) {
+                            var minute = (Math.floor(time.getMinutes() / 10) == 0) ? "0" + time.getMinutes() : time.getMinutes();
+                            var hours;
+                            var ampm;
+                            if (time.getHours() == 0) {
+                                hours = 12;
+                                ampm = "AM";
+                            } else if (time.getHours() >= 12) {
+                                hours = (time.getHours() == 12) ? time.getHours() : time.getHours() - 12;
+                                ampm = "PM";
+                            } else {
+                                hours = time.getHours();
+                                ampm = "AM";
+                            }
+                            date = "Today at " + hours + ":" + minute + " " + ampm;
+                        } else {
+                            date = time.getMonth() + "/" + time.getDate() + "/" + time.getFullYear();
+                        }
+
+                        //Append message to list of messages
+                        var text = document.createElement('b');
+                        text.innerHTML = messages[i].firstName + " " + messages[i].lastName + " (@" + messages[i].username + ") ";
+                        newMsg.appendChild(text);
+                        newMsg.appendChild(document.createTextNode(date));
+                        newMsg.appendChild(document.createElement('br'));
+                        newMsg.appendChild(document.createTextNode(messages[i].message));
+                        $('#messages').append(newMsg);
+                        $('#messages').animate({
+                            scrollTop: $('#messages').get(0).scrollHeight
+                        }, 0);
+                    }
+                }
+
+                //Socket emits with initially joining
+                console.log("joined room");
+                room = true;
+                socket.emit('join room', {
+                    sender: userID,
+                    room: roomID
+                });
+                socket.emit('login', {
+                    user: username
+                });
+                socket.emit('online');
+            </script>
+        </main>
+        
+	</body>
+
+</html>

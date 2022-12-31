@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>FakeBook HomePage</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>	
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+		<link rel="stylesheet" href="/stylesheets/homepage.css">
+	</head>
+
+	<script type="text/javascript">
+		var inx = 0;
+		$(document).ready(function() {
+			// get posts for homepage
+			$.getJSON('/getFriendsPosts', {index: inx}, function(result) {
+				console.log(result);
+			})
+			
+			// get user info
+			var user;
+			$.getJSON('/getUserInfo', function(data) {
+				console.log(data);
+				/*$('#accountData').html('Account data: <br> email:' + data.Item.email.S + '<br>' 
+						+ 'username: ' + data.Item.username.S);
+				$('#name').html(data.Item.firstName.S + " " + data.Item.lastName.S);
+				$('#username').html("@" + data.Item.username.S);
+				$('#username').css({"font-style": "italic"});*/
+				user = data.Item.username.S;
+				console.log('username', user);
+				//loadNextPosts();
+			})
+			
+		})
+	</script>
+	<body>
+		<nav class="flex-div">
+			<div class="nav-left flex-div">
+				<div class = "flex-div">
+					<img src ="/img/facebook-logo.png" width: 30px, height=30px>
+					<h1 class="logo" id="logo" style="font-family: mono; font-size: 1.5em">akeBook</h1>
+				</div>
+				<div class="search-bar">
+					<input type="text" id="search" placeholder="# Search for a user">
+				</div>
+			</div>
+
+			<div class="nav-right flex-div">
+				<img src="/img/home.png">
+				<img src="/img/notification.png">
+				<img src="/img/chat.png">
+				<img src="/img/account.jpeg" class="nav-circular-icon">
+			</div>
+		</nav>
+		
+		<div class="flex-div sidebar">
+			<a class="active" href="/therealHomePage">Home Page</a>
+			<a href="#yourWall">Your Wall</a>
+			<a href="/visualize">Friend Visualizer</a>
+			<a href="#chats">Chats</a>
+			<a href="/accountChange">Manage Account</a>
+		</div>
+		
+	</body>
